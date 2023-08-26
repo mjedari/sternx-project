@@ -1,0 +1,6 @@
+.idea
+**/*.log
+.vscode/settings.json
+worker/src/strenx-worker
+producer/src/strenx-producer
+distributor/src/strenx-distributor

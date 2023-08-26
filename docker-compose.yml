@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  producer:
+    container_name: producer
+    build:
+      dockerfile: Dockerfile
+      context: producer
+    depends_on:
+      - rabbitmq
+    environment:
+      PRODUCER_RABBIT_HOST: "host.docker.internal"
+    networks:
+      - sternx-net
+
+  worker-0:
+    container_name: worker-0
+    build:
+      dockerfile: Dockerfile
+      context: worker
+    depends_on:
+      - rabbitmq
+      - producer
+    environment:
+      WORKER_WORKER_QUEUENAME: "worker-queue-0"
+      WORKER_RABBIT_HOST: "host.docker.internal"
+    networks:
+      - sternx-net
+
+  worker-1:
+    container_name: worker-1
+    build:
+      dockerfile: Dockerfile
+      context: worker
+    depends_on:
+      - rabbitmq
+      - producer
+    environment:
+      WORKER_WORKER_QUEUENAME: "worker-queue-1"
+      WORKER_RABBIT_HOST: "host.docker.internal"
+    networks:
+      - sternx-net
+
+  worker-2:
+    container_name: worker-2
+    build:
+      dockerfile: Dockerfile
+      context: worker
+    depends_on:
+      - rabbitmq
+      - producer
+    environment:
+      WORKER_WORKER_QUEUENAME: "worker-queue-2"
+      WORKER_RABBIT_HOST: "host.docker.internal"
+    networks:
+      - sternx-net
+
+
+  distributor:
+    container_name: distributor
+    build:
+      dockerfile: Dockerfile
+      context: distributor
+    depends_on:
+      - rabbitmq
+      - producer
+    environment:
+      DISTRIBUTOR_DISTRIBUTOR_WORKERS: 3
+      DISTRIBUTOR_RABBIT_HOST: "host.docker.internal"
+    networks:
+      - sternx-net
+
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "15672:15672"  # RabbitMQ Management Console
+      - "5672:5672"
+    networks:
+      - sternx-net
+
+networks:
+  sternx-net:
+    driver: bridge

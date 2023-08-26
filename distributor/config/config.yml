@@ -1,0 +1,23 @@
+Rabbit:
+  Host: localhost # for docker to use in mac put: host.docker.internal
+  Port: 5672
+  User: guest
+  Pass: guest
+  ExchangeName: "tasks-exchange"
+  QueueName: "tasks-queue"
+  RoutingKey: "tasks-routing-key"
+
+Healer:
+  RetryTimes: 100
+  RetryDelay: 2  # in seconds
+  PingInterval: 1 # in seconds
+
+Producer:
+  Interval: 3 # in seconds
+
+Consumer:
+  Interval: 3 # in seconds
+
+Distributor:
+  Interval: 3 # in seconds
+  Workers: 1
