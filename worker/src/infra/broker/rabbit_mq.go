@@ -69,12 +69,11 @@ func (r *RabbitMQ) ResetConnection(ctx context.Context) error {
 	return nil
 }
 
-func (r *RabbitMQ) Consume(ctx context.Context, queueName, key string, apply func(ctx context.Context, message []byte) error) error {
+func (r *RabbitMQ) Consume(ctx context.Context, queueName, key string, ackMonitoring func(ctx context.Context), apply func(ctx context.Context, message []byte) error) error {
 	q, err := r.Channel.QueueDeclare(queueName, true, false, false, false, nil)
 	if err != nil {
 		return err
 	}
-
 	//err = r.Channel.QueueBind(q.Name, key, r.Config.ExchangeName, false, nil)
 
 	msgs, err := r.Channel.Consume(q.Name, "", false, false, false, false, nil)
@@ -93,6 +92,7 @@ func (r *RabbitMQ) Consume(ctx context.Context, queueName, key string, apply fun
 
 				if processErr == nil {
 					msg.Ack(false)
+					ackMonitoring(ctx)
 				}
 			}
 		}

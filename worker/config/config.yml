@@ -1,3 +1,7 @@
+Server:
+  Host: localhost
+  Port: 8080
+
 Rabbit:
   Host: localhost # for docker to use in mac put: host.docker.internal
   Port: 5672

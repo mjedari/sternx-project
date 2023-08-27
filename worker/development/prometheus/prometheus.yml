@@ -1,0 +1,19 @@
+scrape_configs:
+  - job_name: 'worker-service-0'
+    scrape_interval: 1s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['host.docker.internal:8080']
+
+  - job_name: 'worker-servic-1'
+    scrape_interval: 1s
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ 'host.docker.internal:8081' ]
+
+
+  - job_name: 'worker-service-2'
+    scrape_interval: 1s
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ 'host.docker.internal:8082' ]

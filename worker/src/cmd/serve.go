@@ -9,8 +9,13 @@ import (
 	"github.com/mjedari/sternx-project/worker/domain/contracts"
 	"github.com/mjedari/sternx-project/worker/infra/broker"
 	"github.com/mjedari/sternx-project/worker/infra/healer"
+	"github.com/mjedari/sternx-project/worker/infra/monitoring"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"log"
+	"net"
+	"net/http"
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
@@ -44,9 +49,11 @@ func init() {
 func serve(ctx context.Context) {
 	initWiring(ctx)
 
-	service := worker.NewService(wiring.Wiring.GetBroker(), configs.Config.Worker)
+	go runHttpServer(ctx)
+
+	service := worker.NewService(wiring.Wiring.GetBroker(), wiring.Wiring.GetMonitoringService(), configs.Config.Worker)
 	service.Run(ctx)
-	// start project from here
+
 }
 
 func initWiring(ctx context.Context) {
@@ -55,11 +62,26 @@ func initWiring(ctx context.Context) {
 		logrus.Fatalf("Fatal error on create redis("+configs.Config.Rabbit.Host+":"+configs.Config.Rabbit.Port+")connection: %s \n", err)
 	}
 
-	wiring.Wiring = wiring.NewWire(rabbitProvider, configs.Config)
+	newMonitoring := monitoring.NewPrometheus()
+	wiring.Wiring = wiring.NewWire(rabbitProvider, newMonitoring, configs.Config)
 
 	// init healer for services
 	infraHealer := healer.NewHealerService([]contracts.IProvider{rabbitProvider}, configs.Config.GetHealerConfig())
 	infraHealer.Start(ctx)
 
 	logrus.Info("wiring initialized")
+}
+
+func runHttpServer(ctx context.Context) {
+	// build endpoints
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler())
+
+	address := net.JoinHostPort(configs.Config.Server.Host, configs.Config.Server.Port)
+	server := &http.Server{Addr: address, Handler: mux}
+
+	err := server.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
 }

@@ -9,12 +9,13 @@ import (
 var Wiring *Wire
 
 type Wire struct {
-	broker  contracts.IBroker
-	Configs configs.Configuration
+	broker     contracts.IBroker
+	monitoring contracts.IMonitoring
+	Configs    configs.Configuration
 }
 
-func NewWire(broker contracts.IBroker, configs configs.Configuration) *Wire {
-	return &Wire{broker: broker, Configs: configs}
+func NewWire(broker contracts.IBroker, monitoring contracts.IMonitoring, configs configs.Configuration) *Wire {
+	return &Wire{broker: broker, monitoring: monitoring, Configs: configs}
 }
 
 func (w *Wire) ShutdownServices() {
