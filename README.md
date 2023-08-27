@@ -21,6 +21,13 @@ To start project by docker in the root of project simple run:
 ```
 docker compose up
 ```
+All these stacks start coming up:
+* Producer 
+* Distributor
+* Workers (3 in default)
+* Grafana
+* Prognathous
+* RabbitMQ
 
 ### Make
 
@@ -30,6 +37,14 @@ You can run each application separately by make command but before make sure tha
 ```
 make start
 ```
+
+## Monitoring
+
+For the sake of monitoring, I just add some metrics to track number of tasks each worker receive and done. Due to
+limited deadline I decided to just add metrics to workers. The Grafana file is inside this directory:
+`worker/development/grafana/worker-dashboard.json`.
+
+![dashboard](docs/worker-dahsboard.png).
 
 ## Architecture
 
